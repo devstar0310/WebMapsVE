@@ -1,10 +1,12 @@
-/* ----------------------------------------------------------------------------------- */
+﻿/* ----------------------------------------------------------------------------------- */
 /* Copyright (C) Simplovation LLC (http://Simplovation.com) 2016. All rights reserved. */
 /* Licensing information available at http://webmapsve.codeplex.com                    */
 /* ----------------------------------------------------------------------------------- */
 /*Map.js - Simplovation.Web.Maps.VE*/
+"use strict";
+
 Type.registerNamespace("Simplovation.Web.Maps.VE");
-Simplovation.Web.Maps.VE.Map = function(element) {
+Simplovation.Web.Maps.VE.Map = function (element) {
     Simplovation.Web.Maps.VE.Map.initializeBase(this, [element]);
 
     this._Map = null;
@@ -16,7 +18,7 @@ Simplovation.Web.Maps.VE.Map = function(element) {
     this._ShowPoweredBy = true;
     this._ShowSwitch = true;
     this._NavigationBarMode = null; // Microsoft.Maps.NavigationBarMode.compact; // <-- use Microsoft.Maps.NavigationBarMode.compact here
-    this._TileBuffer = 0; this._Layers = null;
+    this._TileBuffer = 0;this._Layers = null;
     this._AsyncPostbackPassShapes = true;
     this._AppPathRoot = null;
     this._AppPathDomain = null;
@@ -67,7 +69,7 @@ Simplovation.Web.Maps.VE.Map = function(element) {
     this._map_OnLoad$delegate = fcd(this, this._map_OnLoad);
 };
 Simplovation.Web.Maps.VE.Map.prototype = {
-    initialize: function() {
+    initialize: function initialize() {
         Simplovation.Web.Maps.VE.Map.callBaseMethod(this, "initialize");
 
         var that = this;
@@ -95,9 +97,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             }
         }
 
-
         this._MainMapDiv = $get(this.get_id() + "_Map");
-
 
         var mapOptions = {
             credentials: this._BingKey || 'not set',
@@ -106,15 +106,13 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             disableZooming: this._Fixed
         };
 
-
         if (this._NavigationBarMode !== null) {
             mapOptions.navigationBarMode = this._NavigationBarMode;
         }
-        
+
         window.setTimeout(function () {
 
             that._Map = new Microsoft.Maps.Map(that._MainMapDiv, mapOptions);
-
         }, 100);
 
         //if (this._TileBuffer != 0) {
@@ -165,16 +163,20 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         //av("onkeydown", this._onKeyDownHandler);
         //av("onkeyup", this._onKeyUpHandler);
     },
-    dispose: function() {
+    dispose: function dispose() {
         if (this._Map && this._Map.Dispose) {
             this._Map.Dispose();
         }
         Simplovation.Web.Maps.VE.Map.callBaseMethod(this, "dispose");
     },
-    _map_OnLoad: function(e) {
+    _map_OnLoad: function _map_OnLoad(e) {
         var that = this;
         if (this._DistanceUnit != null) {
-            if (this._DistanceUnit == 1) { this._DistanceUnit = VEDistanceUnit.Kilometers; } else { this._DistanceUnit = VEDistanceUnit.Miles; } this._Map.SetScaleBarDistanceUnit(this._DistanceUnit);
+            if (this._DistanceUnit == 1) {
+                this._DistanceUnit = VEDistanceUnit.Kilometers;
+            } else {
+                this._DistanceUnit = VEDistanceUnit.Miles;
+            }this._Map.SetScaleBarDistanceUnit(this._DistanceUnit);
         }
 
         if (this._Layers) {
@@ -182,7 +184,9 @@ Simplovation.Web.Maps.VE.Map.prototype = {
                 this._loadShapeLayersFromCollection(this._Layers);
             }
         }
-        if (this.get_OnMapLoaded_Handled()) { this._triggerAsyncPostback("maploaded"); }
+        if (this.get_OnMapLoaded_Handled()) {
+            this._triggerAsyncPostback("maploaded");
+        }
         if (this._OnClientMapLoaded) {
             var maploaded$delegate = Function.createDelegate(this, eval(this._OnClientMapLoaded));
             maploaded$delegate(this, e);
@@ -203,13 +207,13 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             logo.style.padding = "2px";
             logo.style.top = "100px";
             logo.innerHTML = "<span style='font-size:8px;white-space:nowrap;'>powered by<br/></span><span style='font-size:15px;'><a href='http://webmapsve.codeplex.com' target='_blank' style='text-decoration:none;cursor:pointer'>Web.Maps.VE</a></span>";
-            window.setTimeout(function() {
+            window.setTimeout(function () {
                 that.get_Map().AddControl(logo);
                 that._realignLogo();
             }, 100);
         }
     },
-    _realignLogo: function() {
+    _realignLogo: function _realignLogo() {
         if (this._ShowPoweredBy) {
             var logo = this.logo;
             if (logo) {
@@ -219,13 +223,13 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             }
         }
     },
-    _loadShapeLayersFromCollection: function(col) {
+    _loadShapeLayersFromCollection: function _loadShapeLayersFromCollection(col) {
         var sl = null;
         var isNewLayer = false;
         var collen = col.length;
         for (var layerIndex = 0; layerIndex < collen; layerIndex++) {
             sl = this.get_Map().GetShapeLayerByIndex(layerIndex);
-            isNewLayer = (sl == null);
+            isNewLayer = sl == null;
             if (isNewLayer) {
                 sl = new VEShapeLayer();
             }
@@ -242,11 +246,13 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             var shapelen = col[layerIndex].Shapes.length;
             for (var shapeIndex = 0; shapeIndex < shapelen; shapeIndex++) {
                 var s = col[layerIndex].Shapes[shapeIndex];
-                if (s.ClientID == null) { //NewShape
+                if (s.ClientID == null) {
+                    //NewShape
                     console.error('adding NewShapes not supported yet');
                     s = this._getVEShape(s);
                     sl.AddShape(s);
-                } else { //ExistingShape
+                } else {
+                    //ExistingShape
                     console.error('update ExistingShape not supported yet');
                     this._updateVEShape(s);
                 }
@@ -256,7 +262,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             }
         }
     },
-    _getVEShape: function(s) {
+    _getVEShape: function _getVEShape(s) {
         if (s.Type == 1) {
             s.Type = VEShapeType.Polyline;
         } else if (s.Type == 2) {
@@ -273,13 +279,13 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         this._setVEShapeProperties(s, shape);
         return shape;
     },
-    _getVELatLong: function(l) {
+    _getVELatLong: function _getVELatLong(l) {
         return new Microsoft.Maps.Location(l.Latitude, l.Longitude);
     },
-    _getVEShapeSourceSpecification: function(v) {
+    _getVEShapeSourceSpecification: function _getVEShapeSourceSpecification(v) {
         return new VEShapeSourceSpecification(this._getVEDataType(v.Type), v.LayerSource, null);
     },
-    _getVEDataType: function(v) {
+    _getVEDataType: function _getVEDataType(v) {
         if (v == 0) {
             return VEDataType.GeoRSS;
         } else if (v == 1) {
@@ -290,7 +296,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             return v;
         }
     },
-    _getIntFromVEDataType: function(v) {
+    _getIntFromVEDataType: function _getIntFromVEDataType(v) {
         if (v == VEDataType.GeoRSS) {
             return 0;
         } else if (v == VEDataType.VECollection) {
@@ -301,28 +307,28 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             return v;
         }
     },
-    _updateVEShape: function(s) {
+    _updateVEShape: function _updateVEShape(s) {
         var shape = this.get_Map().GetShapeByID(s.ClientID);
         if (shape == null) {
             //Shape Not Found
         } else {
-            if (s.Type == 1) {
-                s.Type = VEShapeType.Polyline;
-            } else if (s.Type == 2) {
-                s.Type = VEShapeType.Polygon;
-            } else {
-                s.Type = VEShapeType.Pushpin;
+                if (s.Type == 1) {
+                    s.Type = VEShapeType.Polyline;
+                } else if (s.Type == 2) {
+                    s.Type = VEShapeType.Polygon;
+                } else {
+                    s.Type = VEShapeType.Pushpin;
+                }
+                this._setVEShapeProperties(s, shape);
             }
-            this._setVEShapeProperties(s, shape);
-        }
     },
-    _getVEColor: function(c) {
+    _getVEColor: function _getVEColor(c) {
         return new VEColor(c.R, c.G, c.B, c.A);
     },
-    _getVEPixel: function(p) {
+    _getVEPixel: function _getVEPixel(p) {
         return new VEPixel(p.X, p.Y);
     },
-    _getVECustomIconSpecification: function(v) {
+    _getVECustomIconSpecification: function _getVECustomIconSpecification(v) {
         var s = new VECustomIconSpecification();
         //if (v.BackColor != null) {
         if (v.BackColor) {
@@ -374,7 +380,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         }
         return s;
     },
-    _setVEShapeProperties: function(s, shape) {
+    _setVEShapeProperties: function _setVEShapeProperties(s, shape) {
         //if (s.Altitude != null) {
         if (s.Altitude) {
             shape.SetAltitude(s.Altitude, this._getVEAltitudeModeFromInt(s.AltitudeMode));
@@ -383,7 +389,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         if (s.Description) {
             shape.SetDescription(s.Description);
         }
-        if (s.Draggable != undefined){
+        if (s.Draggable != undefined) {
             shape.Draggable = s.Draggable;
         }
         //if (s.CustomIcon != null) {
@@ -430,14 +436,14 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             shape.HideIcon();
         }
     },
-    AddShape: function(s) {
+    AddShape: function AddShape(s) {
         this.get_Map().AddShape(s);
     },
-    DeleteShapeById: function(id) {
+    DeleteShapeById: function DeleteShapeById(id) {
         var s = this.GetShapeByID(id);
         this.DeleteShape(s);
     },
-    SetCenterOnShapeByID: function(shapeid, zoom, showInfoBox) {
+    SetCenterOnShapeByID: function SetCenterOnShapeByID(shapeid, zoom, showInfoBox) {
         var shape = this.GetShapeByID(shapeid);
         if (shape == null) {
             throw "Unable to find Shape (" + shapeid + ")";
@@ -445,7 +451,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             this.SetCenterOnShape(shape, zoom, showInfoBox);
         }
     },
-    SetCenterOnShape: function(shape, zoom, showInfoBox) {
+    SetCenterOnShape: function SetCenterOnShape(shape, zoom, showInfoBox) {
         //if (zoom != null) {
         if (zoom) {
             this.SetCenterAndZoom(shape.GetIconAnchor(), zoom);
@@ -453,7 +459,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             this.SetCenter(shape.GetIconAnchor());
         }
     },
-    SetCenterOnShapeByTag: function(tag, zoom) {
+    SetCenterOnShapeByTag: function SetCenterOnShapeByTag(tag, zoom) {
         var s = this.GetShapeByTag(tag);
         if (s == null) {
             throw "Unable to find Shape by Tag (" + tag + ")";
@@ -461,7 +467,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             this.SetCenterOnShape(s, zoom);
         }
     },
-    GetShapeByTag: function(tag) {
+    GetShapeByTag: function GetShapeByTag(tag) {
         var m = this.get_Map();
         var lc = m.GetShapeLayerCount();
         for (var l = 0; l < lc; l++) {
@@ -477,172 +483,171 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         return null;
     },
 
-
-    AddControl: function(e, z) {
+    AddControl: function AddControl(e, z) {
         this.get_Map().AddControl(e, z);
     },
-    AddCustomLayer: function(a) {
+    AddCustomLayer: function AddCustomLayer(a) {
         this.get_Map().AddCustomLayer(a);
     },
-    AddShapeLayer: function(l, b) {
+    AddShapeLayer: function AddShapeLayer(l, b) {
         this.get_Map().AddShapeLayer(l, b);
     },
-    AddTileLayer: function(l, v) {
+    AddTileLayer: function AddTileLayer(l, v) {
         this.get_Map().AddTileLayer(l, v);
     },
-    Clear: function() {
+    Clear: function Clear() {
         this.get_Map().Clear();
     },
-    DeleteAllShapeLayers: function() {
+    DeleteAllShapeLayers: function DeleteAllShapeLayers() {
         this.get_Map().DeleteAllShapeLayers();
     },
-    DeleteAllShapes: function() {
+    DeleteAllShapes: function DeleteAllShapes() {
         this.get_Map().DeleteAllShapes();
     },
-    DeleteControl: function(e) {
+    DeleteControl: function DeleteControl(e) {
         this.get_Map().DeleteControl(e);
     },
-    DeleteRoute: function() {
+    DeleteRoute: function DeleteRoute() {
         this.get_Map().DeleteRoute();
     },
-    DeleteShape: function(s) {
+    DeleteShape: function DeleteShape(s) {
         if (s) {
             this.get_Map().DeleteShape(s);
             s = null;
         }
     },
-    DeleteShapeLayer: function(l) {
+    DeleteShapeLayer: function DeleteShapeLayer(l) {
         this.get_Map().DeleteShapeLayer(l);
     },
-    DeleteTileLayer: function(id) {
-        this.get_Map().DeleteTileLayer(id)
+    DeleteTileLayer: function DeleteTileLayer(id) {
+        this.get_Map().DeleteTileLayer(id);
     },
-    EnableShapeDisplayThreshold: function(v) {
+    EnableShapeDisplayThreshold: function EnableShapeDisplayThreshold(v) {
         this.get_Map().EnableShapeDisplayThreshold(v);
     },
-    Find: function(what, where, findType, shapeLayer, startIndex, numberOfResults, showResults, createResults, useDefaultDisambiguation, setBestMapView, callback) {
+    Find: function Find(what, where, findType, shapeLayer, startIndex, numberOfResults, showResults, createResults, useDefaultDisambiguation, setBestMapView, callback) {
         this.get_Map().Find(what, where, findType, shapeLayer, startIndex, numberOfResults, showResults, createResults, useDefaultDisambiguation, setBestMapView, callback);
     },
-    FindLocations: function(l, c) {
+    FindLocations: function FindLocations(l, c) {
         this.get_Map().FindLocations(l, c);
     },
-    Geocode: function(query, callback, opts) {
+    Geocode: function Geocode(query, callback, opts) {
         this.get_Map().Geocode(query, callback, opts);
     },
-    GetBirdseyeScene: function() {
+    GetBirdseyeScene: function GetBirdseyeScene() {
         return this.get_Map().GetBirdseyeScene();
     },
-    GetCenter: function() {
+    GetCenter: function GetCenter() {
         return this.get_Map().GetCenter();
     },
-    GetDirections: function(l, o) {
+    GetDirections: function GetDirections(l, o) {
         this.get_Map().GetDirections(l, o);
     },
-    GetHeight: function() {
+    GetHeight: function GetHeight() {
         return this.get_Height();
     },
-    GetLeft: function() {
+    GetLeft: function GetLeft() {
         return this.get_Map().GetLeft();
     },
-    GetMapType: function() {
+    GetMapType: function GetMapType() {
         return this.get_Map().getMapTypeId();
     },
-    GetMapView: function() {
+    GetMapView: function GetMapView() {
         return null; //return this.get_Map().GetMapView();
     },
-    GetShapeByID: function(id) {
+    GetShapeByID: function GetShapeByID(id) {
         return this.get_Map().GetShapeByID(id);
     },
-    GetShapeLayerByIndex: function(i) {
+    GetShapeLayerByIndex: function GetShapeLayerByIndex(i) {
         return this.get_Map().GetShapeLayerByIndex(i);
     },
-    GetShapeLayerCount: function(i) {
+    GetShapeLayerCount: function GetShapeLayerCount(i) {
         return this.get_Map().GetShapeLayerCount(i);
     },
-    GetTileLayerByID: function(id) {
+    GetTileLayerByID: function GetTileLayerByID(id) {
         return this.get_Map().GetTileLayerByID(id);
     },
-    GetTileLayerByIndex: function(i) {
+    GetTileLayerByIndex: function GetTileLayerByIndex(i) {
         return this.get_Map().GetTileLayerByIndex(i);
     },
-    GetTileLayerCount: function() {
+    GetTileLayerCount: function GetTileLayerCount() {
         return this.get_Map().GetTileLayerCount();
     },
-    GetTop: function() {
+    GetTop: function GetTop() {
         return this.get_Map().GetTop();
     },
-    GetVersion: function() {
+    GetVersion: function GetVersion() {
         return VEMap.GetVersion();
     },
-    GetWidth: function() {
+    GetWidth: function GetWidth() {
         return this.get_Width();
     },
-    GetZoomLevel: function() {
+    GetZoomLevel: function GetZoomLevel() {
         return this.get_Map().getZoom();
     },
-    Hide3DNavigationControl: function() {
+    Hide3DNavigationControl: function Hide3DNavigationControl() {
         this.get_Map().Hide3DNavigationControl();
     },
-    HideAllShapeLayers: function() {
+    HideAllShapeLayers: function HideAllShapeLayers() {
         this.get_Map().HideAllShapeLayers();
     },
-    HideControl: function(e) {
+    HideControl: function HideControl(e) {
         this.get_Map().HideControl(e);
     },
-    HideFindControl: function() {
+    HideFindControl: function HideFindControl() {
         this.get_Map().HideFindControl();
     },
-    HideInfoBox: function() {
+    HideInfoBox: function HideInfoBox() {
         this.get_Map().HideInfoBox();
     },
-    HideMiniMap: function() {
+    HideMiniMap: function HideMiniMap() {
         this.get_Map().HideMiniMap();
     },
-    HideTileLayer: function(l) {
+    HideTileLayer: function HideTileLayer(l) {
         this.get_Map().HideTileLayer(l);
     },
-    ImportShapeLayerData: function(s, c, v) {
+    ImportShapeLayerData: function ImportShapeLayerData(s, c, v) {
         this.get_Map().ImportShapeLayerData(s, c, v);
     },
-    IncludePointInView: function(l) {
+    IncludePointInView: function IncludePointInView(l) {
         this.get_Map().IncludePointInView(l);
     },
-    IsBirdseyeAvailable: function() {
+    IsBirdseyeAvailable: function IsBirdseyeAvailable() {
         return this.get_Map().IsBirdseyeAvailable();
     },
-    LatLongToPixel: function(l) {
+    LatLongToPixel: function LatLongToPixel(l) {
         return this.get_Map().LatLongToPixel(l);
     },
-    PixelToLatLong: function(p) {
+    PixelToLatLong: function PixelToLatLong(p) {
         return this.get_Map().PixelToLatLong(p);
     },
-    RemoveCustomLayer: function(a) {
+    RemoveCustomLayer: function RemoveCustomLayer(a) {
         this.get_Map().RemoveCustomLayer(a);
     },
-    Search: function(query, callback, opts){
+    Search: function Search(query, callback, opts) {
         this.get_Map().Search(query, callback, opts);
     },
-    SetBirdseyeScene: function(a, b, c, d) {
+    SetBirdseyeScene: function SetBirdseyeScene(a, b, c, d) {
         this.get_Map().SetBirdseyeScene(a, b, c, d);
     },
-    SetCenter: function(l) {
+    SetCenter: function SetCenter(l) {
         this.get_Map().setView({
             center: l
         });
     },
-    SetCenterAndZoom: function(l, z) {
+    SetCenterAndZoom: function SetCenterAndZoom(l, z) {
         this.get_Map().setView({
             center: l,
             zoom: z
         });
     },
-    SetNavigationBarMode: function (d) {
+    SetNavigationBarMode: function SetNavigationBarMode(d) {
         this.get_Map().SetNavigationBarMode(d);
     },
-    SetFailedShapeRequest: function(p) {
+    SetFailedShapeRequest: function SetFailedShapeRequest(p) {
         this.get_Map().SetFailedShapeRequest(p);
     },
-    SetMapType: function(v) {
+    SetMapType: function SetMapType(v) {
         if (!isNaN(v)) {
             if (v == 2) {
                 v = Microsoft.Maps.MapTypeId.aerial;
@@ -658,100 +663,208 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         }
         this.get_Map().setMapType(v);
     },
-    SetMapView: function(v) {
+    SetMapView: function SetMapView(v) {
         this.get_Map().SetMapView(v);
     },
-    SetMouseWheelZoomToCenter: function(v) {
+    SetMouseWheelZoomToCenter: function SetMouseWheelZoomToCenter(v) {
         this.get_Map().SetMouseWheelZoomToCenter(v);
     },
-    SetShapesAccuracy: function(p) {
+    SetShapesAccuracy: function SetShapesAccuracy(p) {
         this.get_Map().SetShapesAccuracy(p);
     },
-    SetShapesAccuracyRequestLimit: function(v) {
+    SetShapesAccuracyRequestLimit: function SetShapesAccuracyRequestLimit(v) {
         this.get_Map().SetShapesAccuracyRequestLimit(v);
     },
-    SetTileBuffer: function(v) {
+    SetTileBuffer: function SetTileBuffer(v) {
         this.get_Map().SetTileBuffer(v);
     },
-    SetZoomLevel: function (v) {
+    SetZoomLevel: function SetZoomLevel(v) {
         this.get_Map().setView({ zoom: v });
     },
-    Show3DNavigationControl: function() {
+    Show3DNavigationControl: function Show3DNavigationControl() {
         this.get_Map().Show3DNavigationControl();
     },
-    ShowAllShapeLayers: function() {
+    ShowAllShapeLayers: function ShowAllShapeLayers() {
         this.get_Map().ShowAllShapeLayers();
     },
-    ShowControl: function(e) {
+    ShowControl: function ShowControl(e) {
         this.get_Map().ShowControl();
     },
-    ShowDisambiguationDialog: function(v) {
+    ShowDisambiguationDialog: function ShowDisambiguationDialog(v) {
         this.get_Map().ShowDisambiguationDialog(v);
     },
-    ShowFindControl: function() {
+    ShowFindControl: function ShowFindControl() {
         this.get_Map().ShowFindControl();
     },
-    ShowInfoBox: function(s, a, o) {
+    ShowInfoBox: function ShowInfoBox(s, a, o) {
         this.get_Map().ShowInfoBox(s, a, o);
     },
-    ShowMessage: function(m) {
+    ShowMessage: function ShowMessage(m) {
         this.get_Map().ShowMessage(m);
     },
-    ShowMiniMap: function(x, y, s) {
+    ShowMiniMap: function ShowMiniMap(x, y, s) {
         this.get_Map().ShowMiniMap(x, y, s);
     },
-    ShowTileLayer: function(id) {
+    ShowTileLayer: function ShowTileLayer(id) {
         this.get_Map().ShowTileLayer(id);
     },
-    ZoomIn: function () {
+    ZoomIn: function ZoomIn() {
         this.SetZoomLevel(this.GetZoomLevel() + 1);
     },
-    ZoomOut: function () {
+    ZoomOut: function ZoomOut() {
         this.SetZoomLevel(this.GetZoomLevel() - 1);
     },
     //Property Accessors
-    get_Map: function() {
+    get_Map: function get_Map() {
         return this._Map;
     },
-    get_MainMapDiv: function() {
+    get_MainMapDiv: function get_MainMapDiv() {
         return this._MainMapDiv;
     },
-    get_ShowPoweredBy: function () { return this._ShowPoweredBy; }, set_ShowPoweredBy: function (v) { this._ShowPoweredBy = v; },
-    get_Width: function () { return this.get_Map().getWidth(); },
-    get_Height: function () { return this.get_Map().getHeight(); },
-    get_LatLong: function() { return this._LatLong; }, set_LatLong: function(v) { this._LatLong = v; },
-    get_Zoom: function() { return this._Zoom; }, set_Zoom: function(v) { this._Zoom = v; },
-    get_MapType: function() { return this._MapType; }, set_MapType: function(v) { this._MapType = v; },
-    get_AsyncPostbackPassShapes: function() { return this._AsyncPostbackPassShapes; }, set_AsyncPostbackPassShapes: function(v) { this._AsyncPostbackPassShapes = v; },
-    get_Fixed: function() { return this._Fixed; }, set_Fixed: function(v) { this._Fixed = v; },
-    get_DistanceUnit: function() { return this._DistanceUnit; }, set_DistanceUnit: function(v) { this._DistanceUnit = v; },
-    get_ShowSwitch: function() { return this._ShowSwitch; }, set_ShowSwitch: function(v) { this._ShowSwitch = v; },
-    get_NavigationBarMode: function () { return this._NavigationBarMode; }, set_NavigationBarMode: function (v) { this._NavigationBarMode = v; },
-    get_TileBuffer: function() { return this._TileBuffer; }, set_TileBuffer: function(v) { this._TileBuffer = v; },
-    get_EnableBirdseye: function() { return this._EnableBirdseye; }, set_EnableBirdseye: function(v) { this._EnableBirdseye = v; },
-    get_EnableDashboardLabels: function() { return this._EnableDashboardLabels; }, set_EnableDashboardLabels: function(v) { this._EnableDashboardLabels = v; },
-    get_LoadBaseTiles: function() { return this._LoadBaseTiles; }, set_LoadBaseTiles: function(v) { this._LoadBaseTiles = v; },
-    get_Layers: function() { return this_Layers; }, set_Layers: function(v) { this._Layers = v; },
-    get_AppPathRoot: function() { return this._AppPathRoot; }, set_AppPathRoot: function(v) { this._AppPathRoot = v; },
-    get_BingKey: function() { return this._BingKey; }, set_BingKey: function(v) { this._BingKey = v; },
-    get_ImportShapeLayerData_shapeSource: function() { return this._ImportShapeLayerData_shapeSource; }, set_ImportShapeLayerData_shapeSource: function(v) { this._ImportShapeLayerData_shapeSource = v; },
-    get_ImportShapeLayerData_setBestView: function() { return this._ImportShapeLayerData_setBestView; }, set_ImportShapeLayerData_setBestView: function(v) { this._ImportShapeLayerData_setBestView = v; },
+    get_ShowPoweredBy: function get_ShowPoweredBy() {
+        return this._ShowPoweredBy;
+    }, set_ShowPoweredBy: function set_ShowPoweredBy(v) {
+        this._ShowPoweredBy = v;
+    },
+    get_Width: function get_Width() {
+        return this.get_Map().getWidth();
+    },
+    get_Height: function get_Height() {
+        return this.get_Map().getHeight();
+    },
+    get_LatLong: function get_LatLong() {
+        return this._LatLong;
+    }, set_LatLong: function set_LatLong(v) {
+        this._LatLong = v;
+    },
+    get_Zoom: function get_Zoom() {
+        return this._Zoom;
+    }, set_Zoom: function set_Zoom(v) {
+        this._Zoom = v;
+    },
+    get_MapType: function get_MapType() {
+        return this._MapType;
+    }, set_MapType: function set_MapType(v) {
+        this._MapType = v;
+    },
+    get_AsyncPostbackPassShapes: function get_AsyncPostbackPassShapes() {
+        return this._AsyncPostbackPassShapes;
+    }, set_AsyncPostbackPassShapes: function set_AsyncPostbackPassShapes(v) {
+        this._AsyncPostbackPassShapes = v;
+    },
+    get_Fixed: function get_Fixed() {
+        return this._Fixed;
+    }, set_Fixed: function set_Fixed(v) {
+        this._Fixed = v;
+    },
+    get_DistanceUnit: function get_DistanceUnit() {
+        return this._DistanceUnit;
+    }, set_DistanceUnit: function set_DistanceUnit(v) {
+        this._DistanceUnit = v;
+    },
+    get_ShowSwitch: function get_ShowSwitch() {
+        return this._ShowSwitch;
+    }, set_ShowSwitch: function set_ShowSwitch(v) {
+        this._ShowSwitch = v;
+    },
+    get_NavigationBarMode: function get_NavigationBarMode() {
+        return this._NavigationBarMode;
+    }, set_NavigationBarMode: function set_NavigationBarMode(v) {
+        this._NavigationBarMode = v;
+    },
+    get_TileBuffer: function get_TileBuffer() {
+        return this._TileBuffer;
+    }, set_TileBuffer: function set_TileBuffer(v) {
+        this._TileBuffer = v;
+    },
+    get_EnableBirdseye: function get_EnableBirdseye() {
+        return this._EnableBirdseye;
+    }, set_EnableBirdseye: function set_EnableBirdseye(v) {
+        this._EnableBirdseye = v;
+    },
+    get_EnableDashboardLabels: function get_EnableDashboardLabels() {
+        return this._EnableDashboardLabels;
+    }, set_EnableDashboardLabels: function set_EnableDashboardLabels(v) {
+        this._EnableDashboardLabels = v;
+    },
+    get_LoadBaseTiles: function get_LoadBaseTiles() {
+        return this._LoadBaseTiles;
+    }, set_LoadBaseTiles: function set_LoadBaseTiles(v) {
+        this._LoadBaseTiles = v;
+    },
+    get_Layers: function get_Layers() {
+        return this_Layers;
+    }, set_Layers: function set_Layers(v) {
+        this._Layers = v;
+    },
+    get_AppPathRoot: function get_AppPathRoot() {
+        return this._AppPathRoot;
+    }, set_AppPathRoot: function set_AppPathRoot(v) {
+        this._AppPathRoot = v;
+    },
+    get_BingKey: function get_BingKey() {
+        return this._BingKey;
+    }, set_BingKey: function set_BingKey(v) {
+        this._BingKey = v;
+    },
+    get_ImportShapeLayerData_shapeSource: function get_ImportShapeLayerData_shapeSource() {
+        return this._ImportShapeLayerData_shapeSource;
+    }, set_ImportShapeLayerData_shapeSource: function set_ImportShapeLayerData_shapeSource(v) {
+        this._ImportShapeLayerData_shapeSource = v;
+    },
+    get_ImportShapeLayerData_setBestView: function get_ImportShapeLayerData_setBestView() {
+        return this._ImportShapeLayerData_setBestView;
+    }, set_ImportShapeLayerData_setBestView: function set_ImportShapeLayerData_setBestView(v) {
+        this._ImportShapeLayerData_setBestView = v;
+    },
     //Map Events Handled
-    get_OnMapLoaded_Handled: function() { return this._OnMapLoaded_Handled; }, set_OnMapLoaded_Handled: function(v) { this._OnMapLoaded_Handled = v; },
-    get_OnClientMapLoaded: function() { return this._OnClientMapLoaded; }, set_OnClientMapLoaded: function(v) { this._OnClientMapLoaded = v; },
-    get_OnChangeMapType_Handled: function() { return this._OnChangeMapType_Handled; }, set_OnChangeMapType_Handled: function(v) { this._OnChangeMapType_Handled = v; },
-    get_OnChangeView_Handled: function () { return this._OnChangeView_Handled; }, set_OnChangeView_Handled: function (v) { this._OnChangeView_Handled = v; },
-    get_OnEndZoom_Handled: function () { return this._OnEndZoom_Handled; }, set_OnEndZoom_Handled: function (v) { this._OnEndZoom_Handled = v; }, get_OnObliqueEnter_Handled: function () { return this._OnObliqueEnter_Handled; }, set_OnObliqueEnter_Handled: function (v) { this._OnObliqueEnter_Handled = v; }, get_OnObliqueLeave_Handled: function () { return this._OnObliqueLeave_Handled; }, set_OnObliqueLeave_Handled: function (v) { this._OnObliqueLeave_Handled = v; },
+    get_OnMapLoaded_Handled: function get_OnMapLoaded_Handled() {
+        return this._OnMapLoaded_Handled;
+    }, set_OnMapLoaded_Handled: function set_OnMapLoaded_Handled(v) {
+        this._OnMapLoaded_Handled = v;
+    },
+    get_OnClientMapLoaded: function get_OnClientMapLoaded() {
+        return this._OnClientMapLoaded;
+    }, set_OnClientMapLoaded: function set_OnClientMapLoaded(v) {
+        this._OnClientMapLoaded = v;
+    },
+    get_OnChangeMapType_Handled: function get_OnChangeMapType_Handled() {
+        return this._OnChangeMapType_Handled;
+    }, set_OnChangeMapType_Handled: function set_OnChangeMapType_Handled(v) {
+        this._OnChangeMapType_Handled = v;
+    },
+    get_OnChangeView_Handled: function get_OnChangeView_Handled() {
+        return this._OnChangeView_Handled;
+    }, set_OnChangeView_Handled: function set_OnChangeView_Handled(v) {
+        this._OnChangeView_Handled = v;
+    },
+    get_OnEndZoom_Handled: function get_OnEndZoom_Handled() {
+        return this._OnEndZoom_Handled;
+    }, set_OnEndZoom_Handled: function set_OnEndZoom_Handled(v) {
+        this._OnEndZoom_Handled = v;
+    }, get_OnObliqueEnter_Handled: function get_OnObliqueEnter_Handled() {
+        return this._OnObliqueEnter_Handled;
+    }, set_OnObliqueEnter_Handled: function set_OnObliqueEnter_Handled(v) {
+        this._OnObliqueEnter_Handled = v;
+    }, get_OnObliqueLeave_Handled: function get_OnObliqueLeave_Handled() {
+        return this._OnObliqueLeave_Handled;
+    }, set_OnObliqueLeave_Handled: function set_OnObliqueLeave_Handled(v) {
+        this._OnObliqueLeave_Handled = v;
+    },
     /* Mouse Events Handled */
-    get_Click_Handled: function () { return this._click_Handled; }, set_Click_Handled: function (v) { this._click_Handled = v; },
+    get_Click_Handled: function get_Click_Handled() {
+        return this._click_Handled;
+    }, set_Click_Handled: function set_Click_Handled(v) {
+        this._click_Handled = v;
+    },
     //Other Events
-    get_FindArgs: function() {
+    get_FindArgs: function get_FindArgs() {
         return this._FindArgs;
     },
-    set_FindArgs: function(v) {
+    set_FindArgs: function set_FindArgs(v) {
         this._FindArgs = v;
     },
-    GetAsyncEventData: function(args) {
+    GetAsyncEventData: function GetAsyncEventData(args) {
         var mapData = new Simplovation.Web.Maps.VE.AsyncMapData();
         var map = this._Map;
         mapData.EventName = args[0];
@@ -762,7 +875,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
 
         //if (mapData.EventArgs != undefined && mapData.EventArgs != null) {
         if (mapData.EventArgs) {
-            var pInt = function(v) {
+            var pInt = function pInt(v) {
                 //if (v != undefined && v != null) {
                 if (v) {
                     return parseInt(v);
@@ -778,8 +891,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         mapData.ZoomLevel = map.getZoom();
         var mapType = map.getMapTypeId();
 
-        if (mapType == Microsoft.Maps.MapTypeId.aerial)
-        {
+        if (mapType == Microsoft.Maps.MapTypeId.aerial) {
             mapData.MapType = 2;
         } else if (mapType == Microsoft.Maps.MapTypeId.hybrid) {
             mapData.MapType = 3;
@@ -787,7 +899,9 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             mapData.MapType = 4;
         } else if (mapType == Microsoft.Maps.MapTypeId.shaded) {
             mapData.MapType = 5;
-        } else { /*road*/mapData.MapType = 1; }
+        } else {
+            /*road*/mapData.MapType = 1;
+        }
 
         //if (mapData.MapType != 4) { mapData.MapView = this._Map.GetMapView(); }
 
@@ -857,7 +971,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
 
         return Sys.Serialization.JavaScriptSerializer.serialize(mapData);
     },
-    _triggerDirectionsLoadedAsyncPostback: function(route) {
+    _triggerDirectionsLoadedAsyncPostback: function _triggerDirectionsLoadedAsyncPostback(route) {
         //serialize route
         var sbRoute = new Sys.StringBuilder();
         var itinerary;
@@ -878,7 +992,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             sbRoute.append(route.RouteLegs[rl].Distance);
             sbRoute.append(",\"Itinerary\":{\"Items\":[");
 
-            var itinitemlen = routeLeg.Itinerary.Items.length
+            var itinitemlen = routeLeg.Itinerary.Items.length;
             for (var i = 0; i < itinitemlen; i++) {
                 itinerary = routeLeg.Itinerary.Items[i];
                 if (i > 0) {
@@ -907,7 +1021,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
 
         this._triggerAsyncPostback("directionsloaded");
     },
-    LoadAsyncEventData: function(data) {
+    LoadAsyncEventData: function LoadAsyncEventData(data) {
         var m = this;
         var map = this.get_Map();
         var mapData = Sys.Serialization.JavaScriptSerializer.deserialize(data);
@@ -915,7 +1029,6 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         if (mapData.MapType != null) {
             this.SetMapType(mapData.MapType);
         }
-
 
         if (mapData.DeleteLayersFirst != null) {
             if (mapData.DeleteLayersFirst) {
@@ -925,7 +1038,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
 
         if (mapData.ShapeLayersToRemove) {
             var ids = mapData.ShapeLayersToRemove.split("|");
-            for (var i = (ids.length - 1); i >= 0; i--) {
+            for (var i = ids.length - 1; i >= 0; i--) {
                 this.DeleteShapeLayer(this.GetShapeLayerByIndex(parseInt(ids[i])));
             }
         }
@@ -962,14 +1075,14 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             var dirloclen = mapData.Direction_Locations.length;
             for (var i = 0; i < dirloclen; i++) {
                 var loc = mapData.Direction_Locations[i];
-                if (typeof (loc) == "string") {
+                if (typeof loc == "string") {
                     locations[i] = loc;
                 } else {
                     locations[i] = new Microsoft.Maps.Location(loc.Latitude, loc.Longitude);
                 }
             }
             var routeOptions = new VERouteOptions();
-            routeOptions.RouteCallback = function(route) {
+            routeOptions.RouteCallback = function (route) {
                 if (route) {
                     m._triggerDirectionsLoadedAsyncPostback(route);
                 }
@@ -977,7 +1090,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             var ro = mapData.Direction_RouteOptions;
             if (ro) {
                 if (ro.DistanceUnit != null) {
-                    routeOptions.DistanceUnit = ((ro.DistanceUnit == 1) ? VERouteDistanceUnit.Kilometer : VERouteDistanceUnit.Mile);
+                    routeOptions.DistanceUnit = ro.DistanceUnit == 1 ? VERouteDistanceUnit.Kilometer : VERouteDistanceUnit.Mile;
                 }
                 if (ro.DrawRoute != null) {
                     routeOptions.DrawRoute = ro.DrawRoute;
@@ -986,10 +1099,10 @@ Simplovation.Web.Maps.VE.Map.prototype = {
                     routeOptions.RouteColor = this._getVEColor(ro.RouteColor);
                 }
                 if (ro.RouteMode != null) {
-                    routeOptions.RouteMode = (ro.RouteMode == 1 ? VERouteMode.Walking : VERouteMode.Driving);
+                    routeOptions.RouteMode = ro.RouteMode == 1 ? VERouteMode.Walking : VERouteMode.Driving;
                 }
                 if (ro.RouteOptimize != null) {
-                    routeOptions.RouteOptimize = ((ro.RouteOptimize == 1) ? VERouteOptimize.MinimizeTime : ((ro.RouteOptimize == 2) ? VERouteOptimize.MinimizeDistance : VERouteOptimize.Default));
+                    routeOptions.RouteOptimize = ro.RouteOptimize == 1 ? VERouteOptimize.MinimizeTime : ro.RouteOptimize == 2 ? VERouteOptimize.MinimizeDistance : VERouteOptimize.Default;
                 }
                 if (ro.RouteWeight != null) {
                     routeOptions.RouteWeight = ro.RouteWeight;
@@ -1016,7 +1129,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         //if (mapData.FindLocations != null) {
         if (mapData.FindLocations) {
             var loc = this._getVELatLong(mapData.FindLocations);
-            map.FindLocations(loc, function(places) {
+            map.FindLocations(loc, function (places) {
                 m._findLocationsCallback(loc, places);
             });
         }
@@ -1026,14 +1139,13 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         }
         return null;
     },
-    _doImportShapeLayerData: function(shapeSource, setBestView) {
+    _doImportShapeLayerData: function _doImportShapeLayerData(shapeSource, setBestView) {
         var m = this;
-        this.ImportShapeLayerData(this._getVEShapeSourceSpecification(shapeSource),
-            function(sl) {
-                m._importShapeLayerDataCallback(sl);
-            }, setBestView);
+        this.ImportShapeLayerData(this._getVEShapeSourceSpecification(shapeSource), function (sl) {
+            m._importShapeLayerDataCallback(sl);
+        }, setBestView);
     },
-    _importShapeLayerDataCallback: function(shapeLayer) {
+    _importShapeLayerDataCallback: function _importShapeLayerDataCallback(shapeLayer) {
         var r = new Simplovation.Web.Maps.VE.ImportShapeLayerDataEventArgs();
         r.ShapeLayer = this._convertShapeLayerToPostback(shapeLayer);
         r.ShapeSource = new Simplovation.Web.Maps.VE.ShapeSourceSpecification();
@@ -1043,7 +1155,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         hf.value = Sys.Serialization.JavaScriptSerializer.serialize(r);
         this._triggerAsyncPostback("importshapelayerdataloaded");
     },
-    _findLocationsCallback: function(loc, places) {
+    _findLocationsCallback: function _findLocationsCallback(loc, places) {
         var args = new Simplovation.Web.Maps.VE.FindLocationsCallbackArgs();
         args.Location = loc;
         args.Places = places;
@@ -1051,17 +1163,14 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         hf.value = Sys.Serialization.JavaScriptSerializer.serialize(args);
         this._triggerAsyncPostback("findlocationsloaded");
     },
-    _doFindFromFindArgs: function(findArgs) {
+    _doFindFromFindArgs: function _doFindFromFindArgs(findArgs) {
         var m = this;
-        this.Find(findArgs.What, findArgs.Where, VEFindType.Businesses,
-            null, //shapeLayer
-            findArgs.StartIndex, findArgs.NumberOfResults, findArgs.ShowResults,
-            findArgs.CreateResults, findArgs.UseDefaultDisambiguation, findArgs.SetBestMapView,
-            function(layer, resultsArray, places, hasMore, veErrorMessage) {
-                m._findCallback(layer, resultsArray, places, hasMore, veErrorMessage);
-            });
+        this.Find(findArgs.What, findArgs.Where, VEFindType.Businesses, null, //shapeLayer
+        findArgs.StartIndex, findArgs.NumberOfResults, findArgs.ShowResults, findArgs.CreateResults, findArgs.UseDefaultDisambiguation, findArgs.SetBestMapView, function (layer, resultsArray, places, hasMore, veErrorMessage) {
+            m._findCallback(layer, resultsArray, places, hasMore, veErrorMessage);
+        });
     },
-    _findCallback: function(layer, resultsArray, places, hasMore, veErrorMessage) {
+    _findCallback: function _findCallback(layer, resultsArray, places, hasMore, veErrorMessage) {
         var args = new Simplovation.Web.Maps.VE.FindCallbackArgs();
         args.Places = places;
         //Array of VEFindResult
@@ -1092,37 +1201,37 @@ Simplovation.Web.Maps.VE.Map.prototype = {
 
         this._triggerAsyncPostback("findloaded");
     },
-    _getIntFromFindType: function(f) {
+    _getIntFromFindType: function _getIntFromFindType(f) {
         if (f == VEFindType.Businesses) {
             return 0;
         }
         return f;
     },
-    _raiseClientSideEvent: function(evtName, e) {
+    _raiseClientSideEvent: function _raiseClientSideEvent(evtName, e) {
         var h = this.get_events().getHandler(evtName);
         if (h) {
             h(this, e);
         }
     },
-    addHandler: function(eventName, method) {
+    addHandler: function addHandler(eventName, method) {
         this.get_events().addHandler(eventName, method);
     },
-    removeHandler: function(eventName, method) {
+    removeHandler: function removeHandler(eventName, method) {
         this.get_events().removeHandler(eventName, method);
     },
-    AddHandler: function(e, m) {
+    AddHandler: function AddHandler(e, m) {
         this.addHandler(e, m);
     },
-    RemoveHandler: function(e, m) {
+    RemoveHandler: function RemoveHandler(e, m) {
         this.removeHandler(e, m);
     },
-    AttachEvent: function(e, m) {
+    AttachEvent: function AttachEvent(e, m) {
         this.addHandler(e, m);
     },
-    DetachEvent: function(e, m) {
+    DetachEvent: function DetachEvent(e, m) {
         this.removeHandler(e, m);
     },
-    _convertShapeLayerToPostback: function(layer) {
+    _convertShapeLayerToPostback: function _convertShapeLayerToPostback(layer) {
         sl = new Simplovation.Web.Maps.VE.ShapeLayer();
         sl.Title = layer.GetTitle();
         sl.Description = layer.GetDescription();
@@ -1137,12 +1246,12 @@ Simplovation.Web.Maps.VE.Map.prototype = {
 
         return sl;
     },
-    _convertShapeToPostback: function(shape) {
+    _convertShapeToPostback: function _convertShapeToPostback(shape) {
         var appPathDomain = Simplovation.Web.Maps.VE.Utils.AppPathDomain;
 
         var mapShape;
         var myShape = new Simplovation.Web.Maps.VE.Shape();
-        if (typeof (shape) != "string") {
+        if (typeof shape != "string") {
             mapShape = shape;
             myShape.ClientID = mapShape.GetID();
         } else {
@@ -1151,7 +1260,7 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         }
         myShape.Title = Simplovation$Web$Maps$JSONEncodeString(mapShape.GetTitle());
         myShape.Description = Simplovation$Web$Maps$JSONEncodeString(mapShape.GetDescription());
-        
+
         myShape.Draggable = mapShape.Draggable;
 
         if (mapShape.GetCustomIcon()) {
@@ -1208,7 +1317,8 @@ Simplovation.Web.Maps.VE.Map.prototype = {
             myShape.Type = 0;
         } else if (shapeType == VEShapeType.Polygon) {
             myShape.Type = 2;
-        } else { //if(shapeType==VEShapeType.Polyline)
+        } else {
+            //if(shapeType==VEShapeType.Polyline)
             myShape.Type = 1;
         }
         myShape.ZIndex = mapShape.GetZIndex();
@@ -1216,141 +1326,141 @@ Simplovation.Web.Maps.VE.Map.prototype = {
         return myShape;
     },
     //MapEvents
-    _onChangeMapType: function(e) {
+    _onChangeMapType: function _onChangeMapType(e) {
         if (this.get_OnChangeMapType_Handled()) {
             this._triggerAsyncPostback("maptypechanged", e);
         }
         this._raiseClientSideEvent("maptypechanged", e);
     },
-    _onChangeView: function(e) {
+    _onChangeView: function _onChangeView(e) {
         if (this.get_OnChangeView_Handled()) {
             this._triggerAsyncPostback("onchangeview", e);
         }
         this._raiseClientSideEvent("onchangeview", e);
     },
-    _onEndZoom: function(e) {
+    _onEndZoom: function _onEndZoom(e) {
         if (this.get_OnEndZoom_Handled()) {
             this._triggerAsyncPostback("onendzoom", e);
         }
         this._raiseClientSideEvent("onendzoom", e);
     },
-    _onError: function(e) {
+    _onError: function _onError(e) {
         this._triggerAsyncPostback("onerror", e);
         this._raiseClientSideEvent("onerror", e);
     },
-    _onObliqueEnter: function(e) {
+    _onObliqueEnter: function _onObliqueEnter(e) {
         if (this.get_OnObliqueEnter_Handled()) {
             this._triggerAsyncPostback("onobliqueenter", e);
         }
         this._raiseClientSideEvent("onobliqueenter", e);
     },
-    _onObliqueLeave: function(e) {
+    _onObliqueLeave: function _onObliqueLeave(e) {
         if (this.get_OnObliqueLeave_Handled()) {
             this._triggerAsyncPostback("onobliqueleave", e);
         }
         this._raiseClientSideEvent("onobliqueleave", e);
     },
-    _onObliqueChange: function(e) {
+    _onObliqueChange: function _onObliqueChange(e) {
         this._raiseClientSideEvent("onobliquechange", e);
     },
-    _onStartZoom: function(e) {
+    _onStartZoom: function _onStartZoom(e) {
         this._raiseClientSideEvent("onstartzoom", e);
     },
     //MouseEvents
-    _click: function(e) {
+    _click: function _click(e) {
         if (this.get_Click_Handled()) {
             this._triggerAsyncPostback("click", e);
         }
         this._raiseClientSideEvent("click", e);
     },
-    _onDoubleClick: function(e) {
+    _onDoubleClick: function _onDoubleClick(e) {
         this._raiseClientSideEvent("dblclick", e);
     },
-    _onMouseDown: function(e) {
+    _onMouseDown: function _onMouseDown(e) {
         this._raiseClientSideEvent("mousedown", e);
     },
-    _onMouseMove: function(e) {
+    _onMouseMove: function _onMouseMove(e) {
         this._raiseClientSideEvent("mousemove", e);
     },
-    _onMouseOut: function(e) {
+    _onMouseOut: function _onMouseOut(e) {
         this._raiseClientSideEvent("mouseout", e);
     },
-    _onMouseOver: function(e) {
+    _onMouseOver: function _onMouseOver(e) {
         this._raiseClientSideEvent("mouseover", e);
     },
-    _onMouseUp: function(e) {
+    _onMouseUp: function _onMouseUp(e) {
         this._raiseClientSideEvent("mouseup", e);
     },
-    _onMouseWheel: function(e) {
+    _onMouseWheel: function _onMouseWheel(e) {
         this._raiseClientSideEvent("onmousewheel", e);
     },
     //KeyboardEvents
-    _onKeyPress: function(e) {
+    _onKeyPress: function _onKeyPress(e) {
         this._raiseClientSideEvent("keypress", e);
     },
-    _onKeyDown: function(e) {
+    _onKeyDown: function _onKeyDown(e) {
         this._raiseClientSideEvent("keydown", e);
     },
-    _onKeyUp: function(e) {
+    _onKeyUp: function _onKeyUp(e) {
         this._raiseClientSideEvent("keyup", e);
     }
 };
 Simplovation.Web.Maps.VE.Map.registerClass("Simplovation.Web.Maps.VE.Map", Simplovation.Web.Maps.VE.AsyncScriptControl);
 
-Simplovation.Web.Maps.VE.AsyncMapData = function() {
-    this.EventName = null; this.EventArgs = null; this.Width = null; this.Height = null;
-    this.ZoomLevel = null; this.Latitude = null; this.Longitude = null; this.MapType = null;
-    this.Direction_Locations = null; this.Direction_RouteOptions = null; this.MapLoadedEventArgs = null;
-    this.ImportShapeLayerData_shapeSource = null; this.ImportShapeLayerData_setBestView = false;
+Simplovation.Web.Maps.VE.AsyncMapData = function () {
+    this.EventName = null;this.EventArgs = null;this.Width = null;this.Height = null;
+    this.ZoomLevel = null;this.Latitude = null;this.Longitude = null;this.MapType = null;
+    this.Direction_Locations = null;this.Direction_RouteOptions = null;this.MapLoadedEventArgs = null;
+    this.ImportShapeLayerData_shapeSource = null;this.ImportShapeLayerData_setBestView = false;
 };
-Simplovation.Web.Maps.VE.FindCallbackArgs = function() {
+Simplovation.Web.Maps.VE.FindCallbackArgs = function () {
     this.Places = null;
     this.Results = null;
 };
-Simplovation.Web.Maps.VE.FindLocationsCallbackArgs = function() {
+Simplovation.Web.Maps.VE.FindLocationsCallbackArgs = function () {
     this.Location = null;
     this.Places = null;
 };
-Simplovation.Web.Maps.VE.Shape=function(){
-    this.ClientID = null; 
-    this.CustomIcon = null; 
+Simplovation.Web.Maps.VE.Shape = function () {
+    this.ClientID = null;
+    this.CustomIcon = null;
     this.Description = null;
-    this.FillColor = null; 
+    this.FillColor = null;
     this.IconAnchor = null;
-    this.LineColor=null;
-    this.LineWidth = 2; 
-    this.MoreInfoURL = null; 
-    this.PhotoURL = null; 
-    this.Points = null; 
-    this.Title = null; 
-    this.Type = 0; 
+    this.LineColor = null;
+    this.LineWidth = 2;
+    this.MoreInfoURL = null;
+    this.PhotoURL = null;
+    this.Points = null;
+    this.Title = null;
+    this.Type = 0;
     this.Altitude = 0;
-    this.AltitudeMode=0;
+    this.AltitudeMode = 0;
 };
-Simplovation.Web.Maps.VE.Pixel = function(x, y) {
+Simplovation.Web.Maps.VE.Pixel = function (x, y) {
     if (isNaN(x)) {
         this.X = 0;
     } else {
         this.X = x;
     }
     if (isNaN(y)) {
-        this.Y = 0; 
+        this.Y = 0;
     } else {
-        this.Y = y; 
+        this.Y = y;
     }
 };
-Simplovation.Web.Maps.VE.ShapeLayer = function() {
+Simplovation.Web.Maps.VE.ShapeLayer = function () {
     this.Title = null;
     this.Description = null;
     this.Shapes = null;
     this.Visible = true;
 };
-Simplovation.Web.Maps.VE.ImportShapeLayerDataEventArgs = function() {
+Simplovation.Web.Maps.VE.ImportShapeLayerDataEventArgs = function () {
     this.ShapeLayer = null;
     this.BestMapView = null;
     this.ShapeSource = null;
 };
-Simplovation.Web.Maps.VE.ShapeSourceSpecification = function() {
+Simplovation.Web.Maps.VE.ShapeSourceSpecification = function () {
     this.LayerSource = null;
     this.Type = null;
 };
@@ -1358,7 +1468,7 @@ Simplovation.Web.Maps.VE.ShapeSourceSpecification = function() {
 Type.registerNamespace("Simplovation.Web.Maps.VE.Utils");
 Simplovation.Web.Maps.VE.Utils.AppPathDomain = location.protocol + "//" + location.host;
 Type.registerNamespace("Simplovation.Web.Maps.VE.Utils.UrlHelper");
-Simplovation.Web.Maps.VE.Utils.UrlHelper.ToAbsolute = function(s, appRoot) {
+Simplovation.Web.Maps.VE.Utils.UrlHelper.ToAbsolute = function (s, appRoot) {
     var n = s;
     if (n.substring(0, 2) == "~/") {
         n = appRoot + n.substring(2);
@@ -1371,14 +1481,14 @@ Simplovation.Web.Maps.VE.Utils.UrlHelper.ToAbsolute = function(s, appRoot) {
 
 function Simplovation$Web$Maps$JSONEncodeString(str) {
     var newstr = str;
-    
-    var r = function(s, o, n) {
+
+    var r = function r(s, o, n) {
         var ns = s;
         while (ns.indexOf(o) != -1) {
             ns = ns.replace(o, n);
         }
         return ns;
-    }
+    };
 
     newstr = r(newstr, "<", "\\u003c");
     newstr = r(newstr, ">", "\\u003e");
@@ -1386,3 +1496,4 @@ function Simplovation$Web$Maps$JSONEncodeString(str) {
     return newstr;
 }
 Sys.Application.notifyScriptLoaded();
+
